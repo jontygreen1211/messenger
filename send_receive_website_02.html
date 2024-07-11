@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send and Receive Messages</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .message-box {
+            width: 300px;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .send-button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .send-button:hover {
+            background-color: #0056b3;
+        }
+        .result, .messages {
+            margin-top: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            text-align: left;
+        }
+        .messages {
+            max-width: 600px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Messenger</h1>
+    <input type="text" id="message" class="message-box" placeholder="Type here...">
+    <button onclick="sendMessage()" class="send-button">Send</button>
+    <div id="result" class="result"></div>
+    <button onclick="getMessages()" class="send-button">Refresh</button>
+    <div id="messages" class="messages"></div>
+</div>
+
+<script>
+    async function sendMessage() {
+        const message = document.getElementById('message').value;
+        const resultDiv = document.getElementById('result');
+        resultDiv.textContent = 'Sending...';
+
+        try {
+            const response = await fetch('http://localhost:5000/send-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message })
+            });
+            const data = await response.json();
+            resultDiv.textContent = data.message;
+        } catch (error) {
+            resultDiv.textContent = 'Error: ' + error.message;
+        }
+    }
+
+    async function getMessages() {
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.textContent = 'Loading...';
+
+        try {
+            const response = await fetch('http://localhost:5000/get-messages', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            messagesDiv.textContent = data.messages.join('\n');
+        } catch (error) {
+            messagesDiv.textContent = 'Error: ' + error.message;
+        }
+    }
+
+    // Initial load of messages
+    getMessages();
+</script>
+
+</body>
+</html>
